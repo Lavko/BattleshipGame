@@ -22,27 +22,31 @@ public class ConsoleGameRenderer : IGameRenderer
         UpdateScore(state);
 
         AnsiConsole.WriteLine();
-        if (!gameWon)
-        {
-            AnsiConsole.WriteLine("Select field to fire (eg. A1, C5, I8)");
-        }
+        AnsiConsole.MarkupLine(
+            gameWon ? "[bold green]You won![/]" : "Select field to fire (eg. A1, C5, I8)"
+        );
     }
 
     private void UpdateBoard(IGameState state)
     {
-        foreach (var position in state.Ships.SelectMany(s => s.Position))
+        foreach (var ship in state.Ships)
         {
-            state.Board.Rows.Update(
-                (int)position.Coordinate.X,
-                (int)position.Coordinate.Y,
-                new Markup(
-                    position.IsDamaged
-                        ? "[red]X[/]"
-                        : _showShips
-                            ? "[green]O[/]"
-                            : string.Empty
-                )
-            );
+            foreach (var position in ship.Position)
+            {
+                state.Board.Rows.Update(
+                    (int)position.Coordinate.X,
+                    (int)position.Coordinate.Y,
+                    new Markup(
+                        position.IsDamaged
+                            ? ship.IsSunk()
+                                ? "[bold darkred]X[/]"
+                                : "[red]x[/]"
+                            : _showShips
+                                ? "[green]O[/]"
+                                : string.Empty
+                    )
+                );
+            }
         }
 
         foreach (var missedFire in state.MissedFires)
@@ -57,19 +61,19 @@ public class ConsoleGameRenderer : IGameRenderer
     {
         var grid = new Grid();
 
-        grid.AddColumn();
-        grid.AddColumn();
-        grid.AddColumn();
+        grid.AddColumns(4);
 
         grid.AddRow(
-            new Markup("[green]Hits:[/]"),
-            new Markup("[red]Misses:[/]"),
-            new Markup("Total shots:")
+            new Markup("[red]Hits:[/]"),
+            new Markup("[green]Misses:[/]"),
+            new Markup("Total shots:"),
+            new Markup("[darkred]Sunk ships:[/]")
         );
         grid.AddRow(
             state.Ships.SelectMany(s => s.Position).Count(p => p.IsDamaged).ToString(),
             state.MissedFires.Count.ToString(),
-            state.FiresCount.ToString()
+            state.FiresCount.ToString(),
+            state.Ships.Count(s => s.IsSunk()).ToString()
         );
 
         AnsiConsole.Write(grid);

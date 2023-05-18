@@ -27,7 +27,8 @@ public static class CoordinatesHelper
                 continue;
             }
 
-            var coordinates = new Vector2(input[0] - 65, int.Parse(input.Substring(1)));
+            var xLetterCoordinate = input[0].ToString().ToUpper();
+            var coordinates = new Vector2(xLetterCoordinate[0] - 65, int.Parse(input.Substring(1)));
 
             if (coordinates.X > GameController.BoardHeight - 1)
             {

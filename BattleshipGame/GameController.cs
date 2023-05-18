@@ -34,9 +34,7 @@ public class GameController
             isGameWon = CheckIfAllShipsDestroyed();
         }
 
-        AnsiConsole.Clear();
         _renderer.UpdateScreen(_gameState, true);
-        AnsiConsole.MarkupLine("[bold]You won![/]");
     }
 
     private void CheckCoordinateAsDamaged(Vector2 fireCoordinates)

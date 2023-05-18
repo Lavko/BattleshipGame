@@ -16,6 +16,8 @@ public class Ship
         SetPosition(startPoint, GetShipSizeByType(type), orientation);
     }
 
+    public bool IsSunk() => Position.All(p => p.IsDamaged);
+
     public static int GetShipSizeByType(ShipType type) =>
         type == ShipType.Battleship ? BattleshipSize : DestroyerSize;
 
