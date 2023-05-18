@@ -6,8 +6,6 @@ namespace BattleshipGame;
 
 public class GameInitializer
 {
-    private const int BoardWidth = 10;
-    private const int BoardHeight = 10;
     private readonly Random _random = new();
 
     public Table InitializeEmptyBoard()
@@ -16,12 +14,12 @@ public class GameInitializer
 
         board.AddColumn(string.Empty);
 
-        for (var i = 1; i <= BoardWidth; i++)
+        for (var i = 1; i <= GameController.BoardWidth; i++)
         {
             board.AddColumn(i.ToString());
         }
 
-        for (var i = 0; i < BoardHeight; i++)
+        for (var i = 0; i < GameController.BoardHeight; i++)
         {
             board.AddRow(Convert.ToChar('A' + i).ToString());
         }
@@ -43,22 +41,39 @@ public class GameInitializer
     {
         while (true)
         {
-            var ran = _random.Next(2);
-            var orientation = (Orientation)ran;
+            var orientation = (Orientation)_random.Next(2);
 
-            var maxXStartingPoint = orientation == Orientation.Vertical ? BoardHeight + 1 - Ship.GetShipSizeByType(shipType) : BoardHeight;
-            var maxYStartingPoint = orientation == Orientation.Horizontal ? BoardWidth - Ship.GetShipSizeByType(shipType) : BoardWidth;
-            var startXPoint = _random.Next(maxXStartingPoint);
-            var startYPoint = _random.Next(maxYStartingPoint) + 1;
+            var randomPosition = GetRandomShipStartPosition(orientation, shipType);
 
-            var ship = new Ship(shipType, new Vector2(startXPoint, startYPoint), orientation);
+            var ship = new Ship(shipType, randomPosition, orientation);
 
-            if (ships.SelectMany(s => s.Position).Intersect(ship.Position).Any())
+            if (
+                ships
+                    .SelectMany(s => s.Position)
+                    .Select(p => p.Coordinate)
+                    .Intersect(ship.Position.Select(p => p.Coordinate))
+                    .Any()
+            )
             {
                 continue;
             }
 
             return ship;
         }
+    }
+
+    private Vector2 GetRandomShipStartPosition(Orientation orientation, ShipType shipType)
+    {
+        var maxXStartingPoint =
+            orientation == Orientation.Vertical
+                ? GameController.BoardHeight + 1 - Ship.GetShipSizeByType(shipType)
+                : GameController.BoardHeight;
+
+        var maxYStartingPoint =
+            orientation == Orientation.Horizontal
+                ? GameController.BoardWidth - Ship.GetShipSizeByType(shipType)
+                : GameController.BoardWidth;
+
+        return new Vector2(_random.Next(maxXStartingPoint), _random.Next(maxYStartingPoint) + 1);
     }
 }
