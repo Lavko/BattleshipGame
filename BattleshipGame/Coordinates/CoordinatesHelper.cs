@@ -18,7 +18,7 @@ public static class CoordinatesHelper
                 continue;
             }
 
-            if (input.Length < 2 && input.Length > 3)
+            if (input.Length < 2 || input.Length > 3)
             {
                 AnsiConsole.WriteLine(
                     "Coordinates can have only 2 or 3 characters, please select correct one (eg. A1, C5, I8):"
